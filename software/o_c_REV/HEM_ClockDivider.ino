@@ -18,7 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#define HEM_CLOCKDIV_MAX 8
+#define HEM_CLOCKDIV_MAX 10
+
+int[] divisions = { 1,2,3,4,5,6,7,8,16,32 }
 
 class ClockDivider : public HemisphereApplet {
 public:
@@ -36,6 +38,13 @@ public:
         }
         cycle_time = 0;
         cursor = 0;
+    }
+
+    int accessDiv(int index) {
+      // index ranges from -HEM_CLOCKDIV_MAX to +HEM_CLOCKDIV_MAX (but not 0, skip that one)
+      int sign = index < 0 ? -1 : 1;
+      int magnitude = abs(index);
+      return sign * divisions[magnitude];
     }
 
     void Controller() {
@@ -64,13 +73,13 @@ public:
             {
                 count[ch]++;
                 if (div[ch] > 0) { // Positive value indicates clock division
-                    if (count[ch] >= div[ch]) {
+                    if (count[ch] >= accessDiv(div[ch])) {
                         count[ch] = 0; // Reset
                         ClockOut(ch);
                     }
                 } else {
                     // Calculate next clock for multiplication on each clock
-                    int clock_every = (cycle_time / -div[ch]);
+                    int clock_every = (cycle_time / accessDiv(div[ch]));
                     next_clock[ch] = this_tick + clock_every;
                     ClockOut(ch); // Sync
                 }
@@ -82,7 +91,7 @@ public:
         {
             if (div[ch] < 0) { // Negative value indicates clock multiplication
                 if (this_tick >= next_clock[ch]) {
-                    int clock_every = (cycle_time / -div[ch]);
+                    int clock_every = (cycle_time / accessDiv(div[ch]));
                     next_clock[ch] += clock_every;
                     ClockOut(ch);
                 }
@@ -104,8 +113,8 @@ public:
         div[cursor] += direction;
         if (div[cursor] > HEM_CLOCKDIV_MAX) div[cursor] = HEM_CLOCKDIV_MAX;
         if (div[cursor] < -HEM_CLOCKDIV_MAX) div[cursor] = -HEM_CLOCKDIV_MAX;
-        if (div[cursor] == 0) div[cursor] = direction > 0 ? 1 : -2; // No such thing as 1/1 Multiple
-        if (div[cursor] == -1) div[cursor] = 1; // Must be moving up to hit -1 (see previous line)
+        if (div[cursor] == 0) div[cursor] = direction > 0 ? 1 : -1; // No such thing as 1/1 Multiple
+        //if (div[cursor] == -1) div[cursor] = 1; // Must be moving up to hit -1 (see previous line)
         count[cursor] = 0; // Start the count over so things aren't missed
     }
 
@@ -144,12 +153,12 @@ private:
 
             if (div[ch] > 0) {
                 gfxPrint(1, y, "/");
-                gfxPrint(div[ch]);
+                gfxPrint(accessDiv(div[ch]));
                 gfxPrint(" Div");
             }
             if (div[ch] < 0) {
                 gfxPrint(1, y, "x");
-                gfxPrint(-div[ch]);
+                gfxPrint(accessDiv(div[ch]));
                 gfxPrint(" Mult");
             }
         }
