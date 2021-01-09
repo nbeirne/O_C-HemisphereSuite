@@ -18,7 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#define HEM_CLOCKDIV_MAX 8
+// #define HEM_CLOCKDIV_MAX 10
+
+#define HEM_INITIAL_DIVISION1 8
+#define HEM_INITIAL_DIVISION2 9
+#define HEM_DIVISIONS 16
+int divisions[] = { -8, -7, -6, -5, -4, -3, -2, 1, 2, 3, 4, 5, 6, 7, 8, 16, 32};
+
+char buffer[60];
 
 class ClockDivider : public HemisphereApplet {
 public:
@@ -28,9 +35,10 @@ public:
     }
 
     void Start() {
+        div[0] = HEM_INITIAL_DIVISION1;
+        div[1] = HEM_INITIAL_DIVISION2;
         ForEachChannel(ch)
         {
-            div[ch] = ch + 1;
             count[ch] = 0;
             next_clock[ch] = 0;
         }
@@ -38,17 +46,21 @@ public:
         cursor = 0;
     }
 
+    int GetDivisionFor(int ch) {
+        int dv = div[ch]+cv[ch];
+        return divisions[constrain(dv, 0, HEM_DIVISIONS)];
+    }  
+
     void Controller() {
         int this_tick = OC::CORE::ticks;
 
         // Set division via CV
         ForEachChannel(ch)
         {
-            int input = DetentedIn(ch) - HEMISPHERE_CENTER_CV;
+            int input = DetentedIn(ch);
             if (input) {
-                div[ch] = Proportion(input, HEMISPHERE_MAX_CV / 2, HEM_CLOCKDIV_MAX);
-                div[ch] = constrain(div[ch], -HEM_CLOCKDIV_MAX, HEM_CLOCKDIV_MAX);
-                if (div[ch] == 0 || div[ch] == -1) div[ch] = 1;
+                cv[ch] = Proportion(input, HEMISPHERE_MAX_CV, HEM_DIVISIONS);
+                cv[ch] = constrain(cv[ch], -HEM_DIVISIONS, HEM_DIVISIONS); // -16->+16
             }
         }
 
@@ -58,19 +70,19 @@ public:
 
         // The input was clocked; set timing info
         if (Clock(0)) {
-        		cycle_time = ClockCycleTicks(0);
+            cycle_time = ClockCycleTicks(0);
             // At the clock input, handle clock division
             ForEachChannel(ch)
             {
                 count[ch]++;
-                if (div[ch] > 0) { // Positive value indicates clock division
-                    if (count[ch] >= div[ch]) {
+                if (GetDivisionFor(ch) > 0) { // Positive value indicates clock division
+                    if (count[ch] >= GetDivisionFor(ch)) {
                         count[ch] = 0; // Reset
                         ClockOut(ch);
                     }
                 } else {
                     // Calculate next clock for multiplication on each clock
-                    int clock_every = (cycle_time / -div[ch]);
+                    int clock_every = (cycle_time / abs(GetDivisionFor(ch)));
                     next_clock[ch] = this_tick + clock_every;
                     ClockOut(ch); // Sync
                 }
@@ -80,9 +92,9 @@ public:
         // Handle clock multiplication
         ForEachChannel(ch)
         {
-            if (div[ch] < 0) { // Negative value indicates clock multiplication
+            if (GetDivisionFor(ch) < 0) { // Negative value indicates clock multiplication
                 if (this_tick >= next_clock[ch]) {
-                    int clock_every = (cycle_time / -div[ch]);
+                    int clock_every = (cycle_time / abs(GetDivisionFor(ch)));
                     next_clock[ch] += clock_every;
                     ClockOut(ch);
                 }
@@ -102,10 +114,8 @@ public:
 
     void OnEncoderMove(int direction) {
         div[cursor] += direction;
-        if (div[cursor] > HEM_CLOCKDIV_MAX) div[cursor] = HEM_CLOCKDIV_MAX;
-        if (div[cursor] < -HEM_CLOCKDIV_MAX) div[cursor] = -HEM_CLOCKDIV_MAX;
-        if (div[cursor] == 0) div[cursor] = direction > 0 ? 1 : -2; // No such thing as 1/1 Multiple
-        if (div[cursor] == -1) div[cursor] = 1; // Must be moving up to hit -1 (see previous line)
+        if (div[cursor] > HEM_DIVISIONS) { div[cursor] = HEM_DIVISIONS; }
+        if (div[cursor] < 0)             { div[cursor] = 0; }
         count[cursor] = 0; // Start the count over so things aren't missed
     }
 
@@ -131,6 +141,7 @@ protected:
 
 private:
     int div[2]; // Division data for outputs. Positive numbers are divisions, negative numbers are multipliers
+    int cv[2]; // cv inputs (range from -16 to +16)
     int count[2]; // Number of clocks since last output (for clock divide)
     int next_clock[2]; // Tick number for the next output (for clock multiply)
     int cursor; // Which output is currently being edited
@@ -142,14 +153,14 @@ private:
             int y = 15 + (ch * 25);
             if (ch == cursor) gfxCursor(0, y + 8, 63);
 
-            if (div[ch] > 0) {
+            if (GetDivisionFor(ch) > 0) {
                 gfxPrint(1, y, "/");
-                gfxPrint(div[ch]);
+                gfxPrint(GetDivisionFor(ch));
                 gfxPrint(" Div");
             }
-            if (div[ch] < 0) {
+            if (GetDivisionFor(ch) < 0) {
                 gfxPrint(1, y, "x");
-                gfxPrint(-div[ch]);
+                gfxPrint(abs(GetDivisionFor(ch)));
                 gfxPrint(" Mult");
             }
         }
