@@ -17,6 +17,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+#ifdef USE_MIDI
 
 #include "HSMIDI.h"
 
@@ -157,3 +158,5 @@ void Backup_handleButtonEvent(const UI::Event &event) {
         if (event.control == OC::CONTROL_BUTTON_R) Backup_instance.OnSendSysEx();
     }
 }
+
+#endif // USE_MIDI

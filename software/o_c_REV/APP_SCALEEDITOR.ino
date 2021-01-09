@@ -62,6 +62,7 @@ public:
         else DrawInterface();
     }
 
+#ifdef USE_MIDI
     /* Send SysEx on app suspend and when the left encoder is pressed */
     void OnSendSysEx() { // Left Enc Push
         uint8_t V[35];
@@ -120,6 +121,7 @@ public:
             QuantizeCurrent();
         }
     }
+#endif // USE_MIDI
 
     /////////////////////////////////////////////////////////////////
     // Control handlers

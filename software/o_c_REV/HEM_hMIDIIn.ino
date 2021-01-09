@@ -20,6 +20,8 @@
 
 // See https://www.pjrc.com/teensy/td_midi.html
 
+#ifdef USE_MIDI
+
 #define HEM_MIDI_CLOCK_DIVISOR 12
 
 #define HEM_MIDI_NOTE_ON 1
@@ -356,3 +358,5 @@ uint32_t hMIDIIn_OnDataRequest(bool hemisphere) {
 void hMIDIIn_OnDataReceive(bool hemisphere, uint32_t data) {
     hMIDIIn_instance[hemisphere].OnDataReceive(data);
 }
+
+#endif // USE_MIDI

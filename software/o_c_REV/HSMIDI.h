@@ -30,16 +30,6 @@
 #ifndef HSMIDI_H
 #define HSMIDI_H
 
-// Teensyduino USB MIDI Library message numbers
-// See https://www.pjrc.com/teensy/td_midi.html
-const uint8_t MIDI_MSG_NOTE_ON = 1;
-const uint8_t MIDI_MSG_NOTE_OFF = 0;
-const uint8_t MIDI_MSG_MIDI_CC = 3;
-const uint8_t MIDI_MSG_AFTERTOUCH = 5;
-const uint8_t MIDI_MSG_PITCHBEND = 6;
-const uint8_t MIDI_MSG_SYSEX = 7;
-const uint8_t MIDI_MSG_REALTIME = 8;
-
 const char* const midi_note_numbers[128] = {
     "C-1","C#-1","D-1","D#-1","E-1","F-1","F#-1","G-1","G#-1","A-1","A#-1","B-1",
     "C0","C#0","D0","D#0","E0","F0","F#0","G0","G#0","A0","A#0","B0",
@@ -53,6 +43,18 @@ const char* const midi_note_numbers[128] = {
     "C8","C#8","D8","D#8","E8","F8","F#8","G8","G#8","A8","A#8","B8",
     "C9","C#9","D9","D#9","E9","F9","F#9","G9"
 };
+
+#ifdef USE_MIDI
+
+// Teensyduino USB MIDI Library message numbers
+// See https://www.pjrc.com/teensy/td_midi.html
+const uint8_t MIDI_MSG_NOTE_ON = 1;
+const uint8_t MIDI_MSG_NOTE_OFF = 0;
+const uint8_t MIDI_MSG_MIDI_CC = 3;
+const uint8_t MIDI_MSG_AFTERTOUCH = 5;
+const uint8_t MIDI_MSG_PITCHBEND = 6;
+const uint8_t MIDI_MSG_SYSEX = 7;
+const uint8_t MIDI_MSG_REALTIME = 8;
 
 const char* const midi_channels[17] = {
     "Off", " 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8",
@@ -185,6 +187,8 @@ typedef struct _SysExData {
     }
 } SysExData, UnpackedData, PackedData;
 
+#endif
+
 /*
  * Base class for applications that need MIDI SysEx support.
  *
@@ -201,6 +205,7 @@ typedef struct _SysExData {
  * may transmit up to 48 bytes, or up to 24 16-bit words.
  */
 class SystemExclusiveHandler {
+#ifdef USE_MIDI
 public:
 
     /* OnSendSysEx() is called when there's a request to send system exclusive data, usually
@@ -289,6 +294,14 @@ protected:
 
 private:
     char last_app_code; // The most recent application code received
+#else
+    public: 
+        virtual void OnSendSysEx() {} // things call these so the symbol need to be around.
+        virtual void OnReceiveSysEx() {}
+
+    protected:
+        bool ListenForSysEx() { return false; }
+#endif // USE_MIDI
 };
 
 /*
@@ -321,3 +334,4 @@ public:
 };
 
 #endif /* HSMIDI_H */
+

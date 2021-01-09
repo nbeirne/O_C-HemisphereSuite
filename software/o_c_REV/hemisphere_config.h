@@ -40,8 +40,6 @@
     DECLARE_APPLET( 10, 0x44, Logic), \
     DECLARE_APPLET( 21, 0x01, LowerRenz), \
     DECLARE_APPLET( 50, 0x04, Metronome), \
-    DECLARE_APPLET(150, 0x20, hMIDIIn), \
-    DECLARE_APPLET( 27, 0x20, hMIDIOut), \
     DECLARE_APPLET( 33, 0x10, MixerBal), \
     DECLARE_APPLET( 20, 0x02, Palimpsest), \
     DECLARE_APPLET( 44, 0x01, RunglBook), \
@@ -67,4 +65,9 @@
     DECLARE_APPLET( 54, 0x01, VectorMorph), \
     DECLARE_APPLET( 43, 0x10, Voltage), \
 }
+/*
+    DECLARE_APPLET(150, 0x20, hMIDIIn), \
+    DECLARE_APPLET( 27, 0x20, hMIDIOut), \
+*/
+
 /*    DECLARE_APPLET(127, 0x80, DIAGNOSTIC), \ */

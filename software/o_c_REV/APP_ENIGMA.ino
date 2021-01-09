@@ -18,6 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#ifdef USE_MIDI
+
 #include "OC_strings.h"
 #include "HSApplication.h"
 #include "HSMIDI.h"
@@ -113,6 +115,7 @@ public:
     // Public access to save method
     void OnSaveSettings() {SaveToEEPROMStage();}
 
+#ifdef USE_MIDI
     void OnSendSysEx() {
         SendTuringMachineLibrary();
         SendOutputAssignments();
@@ -138,6 +141,7 @@ public:
             }
         }
     }
+#endif 
 
     /////////////////////////////////////////////////////////////////
     // Control handlers
@@ -152,9 +156,11 @@ public:
     }
 
     void OnLeftButtonLongPress() {
+#ifdef USE_MIDI
         if (mode == ENIGMA_MODE_LIBRARY) SendTuringMachineLibrary();
         if (mode == ENIGMA_MODE_ASSIGN) SendOutputAssignments();
         if (mode >= ENIGMA_MODE_SONG) SendSong();
+#endif
     }
 
     // Right button sets the parameter for the data type
@@ -195,7 +201,9 @@ public:
                 state_prob[tm_cursor] = 0;
                 if (tm_state.IsFavorite()) {
                     tm_param = ENIGMA_TM_ROTATE;
+#ifdef USE_MIDI
                     SendSingleTuringMachine(tm_cursor);
+#endif
                 }
             }
             if (mode == ENIGMA_MODE_ASSIGN && !play) assign_audition = 0;
@@ -938,6 +946,7 @@ private:
         help_countdown = 0;
     }
 
+#ifdef USE_MIDI
     //////// SysEx
     void SendTuringMachineLibrary() {
         for (byte tm = 0; tm < HS::TURING_MACHINE_COUNT; tm++)
@@ -1084,6 +1093,7 @@ private:
             output[o].mc = V[ix++];
         }
     }
+#endif
 
     //////// Data Storage
     void SaveToEEPROMStage() {
@@ -1234,4 +1244,4 @@ void EnigmaTMWS_handleEncoderEvent(const UI::Event &event) {
     if (event.control == OC::CONTROL_ENCODER_R) EnigmaTMWS_instance.OnRightEncoderMove(event.value);
 }
 
-
+#endif

@@ -22,6 +22,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// this app is very intertwined with midi...
+#ifdef USE_MIDI
+
 #include "util/util_settings.h"
 #include "OC_DAC.h"
 #include "braids_quantizer.h"
@@ -589,3 +592,4 @@ void TheDarkestTimeline_handleEncoderEvent(const UI::Event &event) {
     // Right encoder turned
     if (event.control == OC::CONTROL_ENCODER_R) TheDarkestTimeline_instance.OnRightEncoderMove(event.value);
 }
+#endif

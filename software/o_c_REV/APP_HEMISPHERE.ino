@@ -245,6 +245,7 @@ public:
         }
     }
 
+#ifdef USE_MIDI
     void OnSendSysEx() {
         // Set the values_ array prior to packing it
         RequestAppletData();
@@ -281,6 +282,7 @@ public:
             Resume();
         }
     }
+#endif // USE_MIDI
 
 private:
     Applet available_applets[HEMISPHERE_AVAILABLE_APPLETS];

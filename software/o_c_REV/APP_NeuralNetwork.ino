@@ -76,6 +76,7 @@ public:
     // Public access to save method
     void OnSaveSettings() {SaveToEEPROMStage();}
 
+#ifdef USE_MIDI
     /* Send the current setup via SysEx */
     void OnSendSysEx() {
         byte V[39];
@@ -143,6 +144,7 @@ public:
         }
 
     }
+#endif // USE_MIDI
 
     /* Perform a copy or sysex dump */
     void CopySetup(int target, int source) {

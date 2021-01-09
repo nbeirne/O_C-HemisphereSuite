@@ -20,6 +20,8 @@
 
 // See https://www.pjrc.com/teensy/td_midi.html
 
+#ifdef USE_MIDI
+
 // The functions available for each output
 #define HEM_MIDI_CC_IN 0
 #define HEM_MIDI_AT_IN 1
@@ -323,3 +325,5 @@ uint32_t hMIDIOut_OnDataRequest(bool hemisphere) {
 void hMIDIOut_OnDataReceive(bool hemisphere, uint32_t data) {
     hMIDIOut_instance[hemisphere].OnDataReceive(data);
 }
+
+#endif // USE_MIDI

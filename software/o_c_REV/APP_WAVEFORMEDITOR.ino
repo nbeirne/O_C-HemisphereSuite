@@ -89,6 +89,7 @@ public:
         else DrawInterface();
     }
 
+#ifdef USE_MIDI
     void OnSendSysEx() { // Left Enc Push
         byte V[33];
 
@@ -130,6 +131,7 @@ public:
             Resume();
         }
     }
+#endif
 
     /////////////////////////////////////////////////////////////////
     // Control handlers
