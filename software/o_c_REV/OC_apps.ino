@@ -36,6 +36,7 @@
 
 OC::App available_apps[] = {
   DECLARE_APP('H','S', "Hemisphere", HEMISPHERE),
+  DECLARE_APP('S','Q', "Sequins", SEQ),
   //DECLARE_APP('M','I', "Captain MIDI", MIDI),
   //DECLARE_APP('D','2', "Darkest Timeline", TheDarkestTimeline),
   //DECLARE_APP('E','N', "Enigma", EnigmaTMWS),
