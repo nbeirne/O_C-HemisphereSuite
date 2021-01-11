@@ -3,6 +3,13 @@ Hemisphere Suite: Alternate Alternate Firmware for Ornament and Crime
 
 ![My image](https://farm1.staticflickr.com/676/20090774694_b56e557693_b.jpg)
 
+### My changes
+- Remove Enigma, Darkest Timeline, MIDI support. 
+- Add in Sequins from the original O_C firmware
+- Allow the dual clock divider to have arbitrary divisions (-8-+8, then +16, and +32). Configured in the code.
+- Add a SwitchSeq app which runs 4 sequences in parallel where CV picks which sequence is run, or octave switches, or is quantized directly.
+
+
 
 ### firmware:
 
