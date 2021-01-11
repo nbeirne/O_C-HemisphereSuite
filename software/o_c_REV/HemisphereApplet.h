@@ -25,6 +25,9 @@
 //// Hemisphere Applet Base Class
 ////////////////////////////////////////////////////////////////////////////////
 
+
+typedef void (weegfx::Graphics::*PrintfF)(const char *fmt, ...);
+
 #include "HSicons.h"
 #include "HSClockManager.h"
 
@@ -214,6 +217,14 @@ public:
         graphics.print(num);
     }
 
+    template<typename... Args>
+    void gfxPrintfn(int x, int y, int n, const char *format,  Args ...args) {
+        graphics.setPrintPos(x, y);
+        graphics.printf(format, args...);
+    }
+
+
+
     /* Convert CV value to voltage level and print  to two decimal places */
     void gfxPrintVoltage(int cv) {
         int v = (cv * 100) / (12 << 7);
@@ -263,6 +274,10 @@ public:
 
     void gfxBitmap(int x, int y, int w, const uint8_t *data) {
         graphics.drawBitmap8(x + gfx_offset, y, w, data);
+    }
+
+    void gfxBitmapBlink(int x, int y, int w, const uint8_t *data) {
+        if (CursorBlink()) gfxBitmap(x, y, w, data);
     }
 
     void gfxIcon(int x, int y, const uint8_t *data) {
@@ -406,6 +421,19 @@ protected:
         simfloat proportion = int2simfloat((int32_t)numerator) / (int32_t)denominator;
         int scaled = simfloat2int(proportion * max_value);
         return scaled;
+    }
+
+    // Same as proportion, but works when the numerator is negative. 
+    int SignedProportion(int numerator, int denominator, int max_value) {
+        int sign = (numerator > 0) - (numerator < 0); // easy way to get the sign.
+
+        simfloat proportion = int2simfloat((int32_t) abs(numerator)) / (int32_t) denominator;
+        int scaled = simfloat2int(proportion * max_value);
+        return sign*scaled;
+    }
+
+    int Detented(int value) {
+        return (value > (HEMISPHERE_CENTER_CV + 64) || value < (HEMISPHERE_CENTER_CV - 64)) ? value : HEMISPHERE_CENTER_CV;
     }
 
     /* Proportion CV values into pixels for display purposes.
